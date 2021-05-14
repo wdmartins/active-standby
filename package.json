@@ -1,0 +1,37 @@
+{
+  "name": "active-standby",
+  "version": "1.0.0",
+  "description": "Active-Standby Kubernetes deployment for HA",
+  "main": "index.js",
+  "dependencies": {
+    "bunyan": "^1.8.15",
+    "express": "^4.17.1",
+    "ioredis": "^4.27.2",
+    "minimist": "^1.2.5"
+  },
+  "devDependencies": {
+    "@babel/core": "7.13.10",
+    "@babel/eslint-parser": "7.13.10",
+    "@babel/plugin-syntax-class-properties": "7.12.13",
+    "@types/jest": "26.0.20",
+    "@typescript-eslint/eslint-plugin": "4.17.0",
+    "@typescript-eslint/parser": "4.17.0",
+    "eslint": "7.21.0",
+    "eslint-plugin-babel": "5.3.1",
+    "eslint-plugin-jsdoc": "32.2.0",
+    "typescript": "4.2.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wdmartins/active-standby.git"
+  },
+  "author": "Walter Martins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wdmartins/active-standby/issues"
+  },
+  "homepage": "https://github.com/wdmartins/active-standby#readme"
+}
