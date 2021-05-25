@@ -1,7 +1,6 @@
 'use strict';
 
 const logger = require('./logger').logger('MAIN');
-const storage = require('./storage');
 const server = require('./server');
 const argv = require('minimist')(process.argv.slice(2));
 
@@ -11,5 +10,7 @@ const argv = require('minimist')(process.argv.slice(2));
         logger.error('Missing parameter: --port');
         process.exit(1);
     }
-    server.init(argv.port);
+    const heartbeat = require('./heartbeat');
+    await heartbeat.init(argv.port);
+    heartbeat.registerOnActive(server.init);
 })();

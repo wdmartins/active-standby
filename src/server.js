@@ -8,8 +8,12 @@ let server;
 
 const hostname = process.env.HOSTNAME;
 const host = process.env.LOCAL_IP || '127.0.0.1';
+const port = 8082;
 
-function init(port) {
+/**
+ * Initializes the http server on the given port.
+ */
+function init() {
     logger.info(`Initializing server on http://${host}:${port}`);
 
     const app = express();
@@ -24,6 +28,8 @@ function init(port) {
 
     server = app.listen(port, host);
 }
+
 process.on('uncaughtException', () => { server?.close(); });
 process.on('SIGTERM', () => { server?.close(); });
+
 module.exports.init = init;
