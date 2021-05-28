@@ -3,7 +3,11 @@
 const logger = require('./logger').logger('STORAGE');
 
 const Redis = require('ioredis');
-const redisClient = new Redis({ maxRetriesPerRequest: null });
+const redisClient = new Redis({
+    maxRetriesPerRequest: null,
+    port: 6379,
+    host: 'host.docker.internal'
+});
 const ACTIVE_KEY = 'active';
 
 /**
