@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  labels:
+    app: app
+    mode: active
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # maxSurge is set to zero to ensure that an pod is completely terminated before a new
+      # one is started
+      maxSurge: 0
+      # For the same reason as in maxSurge (anti-affinity rules and three nodes in the cluster), allow
+      # Kubernetes to take down an app instance, so that there is a node eligible for a new instance
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+        mode: active
+    spec:
+      affinity:
+       podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - audit
+                - esapp
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: app
+          image: docker.io/wdmartins/activestandby:latest
+          ports:
+            - name: rest
+              containerPort: 8081

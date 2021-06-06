@@ -44,7 +44,7 @@ const patch = {
 exports.POD_MODE = POD_MODE;
 
 /**
- * Sets the pod's label 'mode' matching the esapp stats (active/stand-by).
+ * Sets the pod's label 'mode' matching the app status (active/stand-by).
  *
  * @param {PodMode} value - The value for the pod's label 'mode'.
  */

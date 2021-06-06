@@ -4,6 +4,7 @@
   "description": "Active-Standby Kubernetes deployment for HA",
   "main": "index.js",
   "dependencies": {
+    "@kubernetes/client-node": "^0.14.3",
     "bunyan": "^1.8.15",
     "express": "^4.17.1",
     "ioredis": "^4.27.2",
