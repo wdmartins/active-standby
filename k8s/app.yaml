@@ -34,7 +34,7 @@ spec:
                 operator: In
                 values:
                 - audit
-                - esapp
+                - app
             topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
