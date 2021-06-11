@@ -15,6 +15,5 @@ RUN npm install
 # Bundle app source
 COPY app/docker/entrypoint.sh .
 COPY app/src/* ./src/
-EXPOSE 6379
-EXPOSE 8081
+
 ENTRYPOINT ["/usr/app/entrypoint.sh"]

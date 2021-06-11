@@ -7,7 +7,7 @@ let state = 0;
 let server;
 
 const hostname = process.env.HOSTNAME;
-const host = process.env.LOCAL_IP || '127.0.0.1';
+const host = process.env.MY_POD_IP || process.env.LOCAL_IP || '127.0.0.1';
 const port = 8082;
 
 /**

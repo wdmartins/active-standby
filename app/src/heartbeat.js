@@ -137,7 +137,7 @@ function startServer(port) {
             });
         });
 
-        const host = process.env.LOCAL_IP || '127.0.0.1';
+        const host = process.env.MY_POD_IP || process.env.LOCAL_IP || '127.0.0.1';
         localAddress = `${host}:${port}`;
 
         logger.info(`Start heartbeat server on ${localAddress}`);

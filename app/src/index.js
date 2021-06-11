@@ -6,6 +6,7 @@ const argv = require('minimist')(process.argv.slice(2));
 
 (async () => {
     logger.info('Starting application...');
+    logger.info('Environment: ', process.env);
     if (!argv.port) {
         logger.error('Missing parameter: --port');
         process.exit(1);

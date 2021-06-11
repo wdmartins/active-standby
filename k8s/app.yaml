@@ -42,3 +42,8 @@ spec:
           ports:
             - name: rest
               containerPort: 8081
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
