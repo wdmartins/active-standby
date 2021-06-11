@@ -9,6 +9,7 @@ const redisClient = new Redis({
     host: 'host.docker.internal'
 });
 const ACTIVE_KEY = 'active';
+const STATE_KEY = 'state';
 
 /**
  * Stores the active process id.
@@ -31,7 +32,30 @@ async function retrieveActive() {
     return id;
 }
 
+/**
+ * Stores the app state.
+ *
+ * @param {string} state - The new state of the app.
+ */
+async function storeState(state) {
+    logger.info(`Storing app state: ${state}`);
+    await redisClient.set(STATE_KEY, state);
+}
+
+/**
+ * Returns the stored app state.
+ *
+ * @returns {string} - The state of the app.
+ */
+async function retrieveState() {
+    const state = await redisClient.get(STATE_KEY);
+    logger.info(`Stored app state: ${state}`);
+    return state;
+}
+
 module.exports = {
     retrieveActive,
-    storeActive
+    retrieveState,
+    storeActive,
+    storeState
 };

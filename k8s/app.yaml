@@ -10,7 +10,7 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      # maxSurge is set to zero to ensure that an pod is completely terminated before a new
+      # maxSurge is set to zero to ensure that a pod is completely terminated before a new
       # one is started
       maxSurge: 0
       # For the same reason as in maxSurge (anti-affinity rules and three nodes in the cluster), allow
