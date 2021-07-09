@@ -15,3 +15,7 @@
 - kubectl apply -f app.yaml
 - kubectl apply -f service.yaml
 - minikube service app-service
+
+## Update label with kubectl
+
+kubectl label pods --overwrite app-deployment-7dc7cdbd65-dvvlz mode=active

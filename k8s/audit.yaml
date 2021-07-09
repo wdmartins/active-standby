@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-deployment
+  labels:
+    app: audit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: audit
+  template:
+    metadata:
+      labels:
+        app: audit
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - app
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: app
+          image: docker.io/wdmartins/activestandbyaudit:latest
