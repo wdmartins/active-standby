@@ -6,8 +6,8 @@ const backend = new Request(Request.config.getInCluster());
 const client = new Client({ backend, version: '1.13' });
 const NAMESPACE = process.env.K8S_NAMESPACE || 'default';
 const { POD_MODE } = require('./k8s');
-const AUDIT_PERIOD_SECS = 30;       // Audit frequency in seconds
-const VERIFICATION_TIME_SECS = 1;   //  The verification time in seconds
+const AUDIT_PERIOD_SECS = 10;       // Audit frequency in seconds
+const VERIFICATION_TIME_SECS = 1;   // The verification time in seconds
 let verificationDone = false;
 
 /**
@@ -44,17 +44,21 @@ async function getAppPods(mode, phase) {
         const fieldSelector = phase ? `status.phase=${phase}` : '';
 
         const result = await client.api.v1.namespaces(NAMESPACE).pods.get({ qs: { labelSelector, fieldSelector } });
-        logger.debug('List pods result: ', result);
+        logger.info('List pods result: ', JSON.stringify(result.body));
         if (result.statusCode !== 200) {
             logger.error(`Unable to get pods data. Error: ${result.statusCode}`);
             return [];
         }
+        result.body.items.forEach(pod => {
+            logger.info(`Mode: ${pod.metadata.labels.mode}, statuses: ${JSON.stringify(pod.status.containerStatuses)}`);
+        });
         return result.body.items.map(pod => ({
             name: pod.metadata.name,
-            mode: pod.metadata.labels.mode
-        }));
+            mode: pod.metadata.labels.mode,
+            running: !!pod.status.containerStatuses[0].state.running?.startedAt
+        })).filter(pod => pod.running);
     } catch (error) {
-        logger.error(`Error listing App pods. Error: ${error.text || error.message}`);
+        logger.error(`Error listing App pods.Error: ${error.text || error.message}`);
         return [];
     }
 }
@@ -72,7 +76,7 @@ async function auditAppPods() {
         // Single or none App pod
         logger.debug('Number of App pods running:', appPods.length);
         verificationDone = false;
-        setTimeout(auditAppPods, VERIFICATION_TIME_SECS * 1000);
+        setTimeout(auditAppPods, AUDIT_PERIOD_SECS * 1000);
         return;
     }
     let podsToDelete = null;
@@ -80,14 +84,14 @@ async function auditAppPods() {
     const standbyPods = appPods.filter(pod => pod.mode === POD_MODE.STAND_BY);
     if (standbyPods.length === appPods.length) {
         // All pods are in stand-by. Check redis and delete pods after verification time.
-        logger.warn(`All pods are in stand-by. Verification done: ${verificationDone}`);
+        logger.warn(`All pods are in stand - by.Verification done: ${verificationDone}`);
         podsToDelete = standbyPods;
     } else {
         // Make sure there is only one pod in active mode.
         const activePods = appPods.filter(pod => pod.mode === POD_MODE.ACTIVE);
         if (activePods.length > 1) {
             // There are more than one active pod. Delete all active pods after verification time.
-            logger.warn(`There are ${activePods.length} active pods. Verification done: ${verificationDone}`);
+            logger.warn(`There are ${activePods.length} active pods.Verification done: ${verificationDone}`);
             podsToDelete = activePods;
         }
     }
