@@ -10,11 +10,27 @@
 
 - Clone or download this project
 - Start minikube
-- minikube -n 3
-- kubectl apply -f k8s/rbac.yaml
-- kubectl apply -f app.yaml
-- kubectl apply -f service.yaml
-- minikube service app-service
+
+```bash
+minikube start -n 3
+```
+
+- Apply cluster configuration
+
+```bash
+pushd k8s;                     \
+kubectl apply -f rbac.yaml;    \
+kubectl apply -f app.yaml;     \
+kubectl apply -f service.yaml; \
+kubectl apply -f  audit.yaml;  \
+popd
+```
+
+- Access the web interface
+
+```bash
+minikube service app-service
+```
 
 ## Update label with kubectl
 
