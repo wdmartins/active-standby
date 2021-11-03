@@ -14,6 +14,10 @@ async function auditpods() {
 
     // Get the running application pods
     const { status, pods } = await getAppPods('', 'Running');
+    if (status !== 200) {
+        logger.error(`Error listing pods: ${status}`);
+        return;
+    }
     logger.info('Returned App pods:', pods);
     if (pods.length < 2) {
         // Single or none App pod
@@ -53,7 +57,11 @@ async function auditpods() {
         }
 
         // After verification the inconsistent state persisted.
-        deleteAppPods(podsToDelete.map(pod => pod.name));
+        const result = await deleteAppPods(podsToDelete.map(pod => pod.name));
+        if (result !== 200) {
+            logger.error(`Error deleting pods: ${result}`);
+        }
+        // eslint-disable-next-line require-atomic-updates
         verificationDone = false;
     }
     setTimeout(auditpods, AUDIT_PERIOD_SECS * 1000);

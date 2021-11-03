@@ -37,41 +37,36 @@ const patch = {
  *
  * @param {string} [mode] - The value of the mode label. If none is provided all App pods are retrieved.
  * @param {string} [phase] - The status phase of the pod, i.e Running, Terminating, etc.
- * @returns {Promise<Array<object>>} The name of the pods matching the mode label value, and such mode vale.
+ * @returns {Promise<object>} The name of the pods matching the mode label value, and such mode vale.
  */
-exports.getAppPods = function (mode, phase) {
-    return new Promise((resolve, reject) => {
-        try {
-            let labelSelector = 'app=app';
-            if (mode) {
-                labelSelector += `,mode=${mode}`;
-            }
-            const fieldSelector = phase ? `status.phase=${phase}` : '';
-            // const result = await k8sApi.api.v1.namespaces(NAMESPACE).pods.get({ qs: { labelSelector, fieldSelector } });
-            k8sApi.listNamespacedPod(NAMESPACE, false, false, '', fieldSelector, labelSelector)
-                .then(result => {
-                    logger.info('List pods result: ', JSON.stringify(result.body));
-                    if (result.response.statusCode !== 200) {
-                        logger.error(`Unable to get pods data. Error: ${result.response.statusCode}`);
-                        resolve(result.response.statusCode, []);
-                    }
-                    result.body.items.forEach(pod => {
-                        logger.info(`Mode: ${pod.metadata.labels.mode}, statuses: ${JSON.stringify(pod.status.containerStatuses)}`);
-                    });
-                    resolve({
-                        status: result.response.statusCode,
-                        pods: result.body.items.map(pod => ({
-                            name: pod.metadata.name,
-                            mode: pod.metadata.labels.mode,
-                            running: !!pod.status.containerStatuses[0].state.running?.startedAt
-                        })).filter(pod => pod.running)
-                    });
-                });
-        } catch (error) {
-            logger.error(`Error listing App pods.Error: ${error.text || error.message}`);
-            reject(error);
+exports.getAppPods = async function (mode, phase) {
+    try {
+        let labelSelector = 'app=app';
+        if (mode) {
+            labelSelector += `,mode=${mode}`;
         }
-    });
+        const fieldSelector = phase ? `status.phase=${phase}` : '';
+        const result = await k8sApi.listNamespacedPod(NAMESPACE, false, false, '', fieldSelector, labelSelector);
+        logger.info('List pods result: ', JSON.stringify(result.body));
+        if (result.response.statusCode !== 200) {
+            logger.error(`Unable to get pods data. Error: ${result.response.statusCode}`);
+            return { ressult: result.response.statusCode, pods: [] };
+        }
+        result.body.items.forEach(pod => {
+            logger.info(`Mode: ${pod.metadata.labels.mode}, statuses: ${JSON.stringify(pod.status.containerStatuses)}`);
+        });
+        return {
+            status: result.response.statusCode,
+            pods: result.body.items.map(pod => ({
+                name: pod.metadata.name,
+                mode: pod.metadata.labels.mode,
+                running: !!pod.status.containerStatuses[0].state.running?.startedAt
+            })).filter(pod => pod.running)
+        };
+    } catch (error) {
+        logger.error(`Error listing App pods.Error: ${error.text || error.message}`);
+        return { status: error };
+    }
 };
 
 
@@ -114,16 +109,23 @@ exports.setMode = function (value) {
  * Deletes the given pods.
  *
  * @param {Array<string>} pods - The names of the pods to be deleted.
+ * @returns {Promise} A promise the resolves to the response or error.
  */
 exports.deleteAppPods = async function (pods) {
+    let returnValue = 200;
     pods.forEach(async podName => {
         logger.debug(`Deleting pod ${podName}`);
         try {
             const result = await k8sApi.deleteNamespacedPod(podName, NAMESPACE);
-            logger.debug('Delete pod result: ', result);
+            logger.info('Delete pod result: ', result.response.statusCode);
+            if (result.response.statusCode !== 200) {
+                returnValue = result.response.statusCode;
+            }
         } catch (error) {
             logger.error(`Error deleting pod ${podName}. Error: ${error.text || error.message}`);
+            returnValue = error;
         }
     });
+    return returnValue;
 };
 
