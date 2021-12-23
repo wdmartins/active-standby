@@ -29,7 +29,6 @@ function buildResponse(command, result, previousState, currentState) {
         hostname,
         result,
         command,
-        previousState,
         currentState
     };
 }

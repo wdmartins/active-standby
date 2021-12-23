@@ -14,16 +14,6 @@ spec:
       labels:
         app: audit
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - app
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
           image: docker.io/wdmartins/activestandbyaudit:latest
